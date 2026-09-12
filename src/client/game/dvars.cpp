@@ -1,16 +1,25 @@
 #include <std_include.hpp>
-
-#define GET_DVAR(ptr) ((game::dvar_t*)((*(INT64*)(((uintptr_t)GetModuleHandle(NULL) + ptr)))))
+#include "game.hpp"
+#include "dvars.hpp"
 
 namespace dvars
 {
-	game::dvar_t* ui_error_report = GET_DVAR(0x1686FF30); //updated
-	game::dvar_t* ui_error_report_delay = GET_DVAR(0x1686FF38); //updated
-	game::dvar_t* ui_error_callstack_ship = GET_DVAR(0x1686ED20); //updated
+	game::dvar_t* ui_error_report = nullptr;
+	game::dvar_t* ui_error_report_delay = nullptr;
+	game::dvar_t* ui_error_callstack_ship = nullptr;
+	game::dvar_t* sv_mapname = nullptr;
+	game::dvar_t* ui_mapname = nullptr;
+	game::dvar_t* ui_gametype = nullptr;
+	game::dvar_t* com_maxclients = nullptr;
 
-	game::dvar_t* sv_mapname = GET_DVAR(0x17736848); //updated
-	game::dvar_t* ui_mapname = GET_DVAR(0x17960BC0); //updated
-	game::dvar_t* ui_gametype = GET_DVAR(0x17960BD0); //updated
-
-	game::dvar_t* com_maxclients = GET_DVAR(0x1686E8D0); //updated
+	void initialize()
+	{
+		ui_error_report = *reinterpret_cast<game::dvar_t**>(OFFSET(0x15686ff30));
+		ui_error_report_delay = *reinterpret_cast<game::dvar_t**>(OFFSET(0x15686ff38));
+		ui_error_callstack_ship = *reinterpret_cast<game::dvar_t**>(OFFSET(0x15686ed20));
+		sv_mapname = *reinterpret_cast<game::dvar_t**>(OFFSET(0x157736848));
+		ui_mapname = *reinterpret_cast<game::dvar_t**>(OFFSET(0x157960bc0));
+		ui_gametype = *reinterpret_cast<game::dvar_t**>(OFFSET(0x157960bd0));
+		com_maxclients = *reinterpret_cast<game::dvar_t**>(OFFSET(0x15686e8d0));
+	}
 }

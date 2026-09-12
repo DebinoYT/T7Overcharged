@@ -156,12 +156,12 @@ namespace hks
 	{
 		lua::HksCompilerSettings hks_compiler_settings;
 		// Enable compiling with source lua
-		game::UI_luaVM->m_global->m_bytecodeSharingMode = lua::HKS_BYTECODE_SHARING_ON;
+		game::UI_luaVM()->m_global->m_bytecodeSharingMode = lua::HKS_BYTECODE_SHARING_ON;
 		// Compile the source lua
-		hks::hksi_hksL_loadbuffer(game::UI_luaVM, &hks_compiler_settings, source.c_str(), source.size(), chunkName);
+		hks::hksi_hksL_loadbuffer(game::UI_luaVM(), &hks_compiler_settings, source.c_str(), source.size(), chunkName);
 		// Turn off raw compiling so compiled files can be loaded again
-		game::UI_luaVM->m_global->m_bytecodeSharingMode = lua::HKS_BYTECODE_SHARING_SECURE;
+		game::UI_luaVM()->m_global->m_bytecodeSharingMode = lua::HKS_BYTECODE_SHARING_SECURE;
 
-		return hks::hksi_lua_pcall(game::UI_luaVM, 0, 0, 0);
+		return hks::hksi_lua_pcall(game::UI_luaVM(), 0, 0, 0);
 	}
 }

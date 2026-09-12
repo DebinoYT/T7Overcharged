@@ -1,6 +1,7 @@
 #pragma once
 
 #include "utils/minlog.hpp"
+#include "offsets.hpp"
 
 namespace game
 {

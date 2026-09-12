@@ -125,7 +125,7 @@ namespace discord
 				{"SetEnemyScore", set_enemyscore},
 				{nullptr, nullptr},
 			};
-			hks::hksI_openlib(game::UI_luaVM, "DiscordRPC", HotReloadLibrary, 0, 1);
+			hks::hksI_openlib(game::UI_luaVM(), "DiscordRPC", HotReloadLibrary, 0, 1);
 		}
 
 		void start_hooks() override

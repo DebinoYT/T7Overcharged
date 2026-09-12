@@ -3,6 +3,7 @@
 
 namespace dvars
 {
+	void initialize();
 	extern game::dvar_t* ui_error_report;
 	extern game::dvar_t* ui_error_report_delay;
 	extern game::dvar_t* ui_error_callstack_ship;

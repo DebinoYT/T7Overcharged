@@ -12,26 +12,39 @@ namespace bullet_depletion
 	static bool bullet_depletion_enabled[2][2] = { {true, true}, {true, true} };
 	static bool bullet_depletion_reload_mode_enabled[2][2] = { {false, false}, {false, false} };
 
-	static const game::ScrString_t disable_bullet_depletion_right_str = game::GScr_AllocString("disable bullet depletion right");
-	static const game::ScrString_t enable_bullet_depletion_right_str = game::GScr_AllocString("enable bullet depletion right");
-	static const game::ScrString_t disable_reload_bullet_depletion_right_str = game::GScr_AllocString("disable reload mode bullet depletion right");
-	static const game::ScrString_t enable_reload_bullet_depletion_right_str = game::GScr_AllocString("enable reload mode bullet depletion right");
-	static const game::ScrString_t disable_bullet_depletion_left_str = game::GScr_AllocString("disable bullet depletion left");
-	static const game::ScrString_t enable_bullet_depletion_left_str = game::GScr_AllocString("enable bullet depletion left");
-	static const game::ScrString_t disable_reload_bullet_depletion_left_str = game::GScr_AllocString("disable reload mode bullet depletion left");
-	static const game::ScrString_t enable_reload_bullet_depletion_left_str = game::GScr_AllocString("enable reload mode bullet depletion left");
+	static game::ScrString_t disable_bullet_depletion_right_str{};
+	static game::ScrString_t enable_bullet_depletion_right_str{};
+	static game::ScrString_t disable_reload_bullet_depletion_right_str{};
+	static game::ScrString_t enable_reload_bullet_depletion_right_str{};
+	static game::ScrString_t disable_bullet_depletion_left_str{};
+	static game::ScrString_t enable_bullet_depletion_left_str{};
+	static game::ScrString_t disable_reload_bullet_depletion_left_str{};
+	static game::ScrString_t enable_reload_bullet_depletion_left_str{};
 
-	static std::vector<game::ScrString_t> bullet_depletion_notes
+	static std::vector<game::ScrString_t> bullet_depletion_notes;
+
+	void initialize_notes()
 	{
-		disable_bullet_depletion_right_str,
-		enable_bullet_depletion_right_str,
-		disable_reload_bullet_depletion_right_str,
-		enable_reload_bullet_depletion_right_str,
-		disable_bullet_depletion_left_str,
-		enable_bullet_depletion_left_str,
-		disable_reload_bullet_depletion_left_str,
-		enable_reload_bullet_depletion_left_str
-	};
+		disable_bullet_depletion_right_str = game::GScr_AllocString("disable bullet depletion right");
+		enable_bullet_depletion_right_str = game::GScr_AllocString("enable bullet depletion right");
+		disable_reload_bullet_depletion_right_str = game::GScr_AllocString("disable reload mode bullet depletion right");
+		enable_reload_bullet_depletion_right_str = game::GScr_AllocString("enable reload mode bullet depletion right");
+		disable_bullet_depletion_left_str = game::GScr_AllocString("disable bullet depletion left");
+		enable_bullet_depletion_left_str = game::GScr_AllocString("enable bullet depletion left");
+		disable_reload_bullet_depletion_left_str = game::GScr_AllocString("disable reload mode bullet depletion left");
+		enable_reload_bullet_depletion_left_str = game::GScr_AllocString("enable reload mode bullet depletion left");
+		bullet_depletion_notes =
+		{
+			disable_bullet_depletion_right_str,
+			enable_bullet_depletion_right_str,
+			disable_reload_bullet_depletion_right_str,
+			enable_reload_bullet_depletion_right_str,
+			disable_bullet_depletion_left_str,
+			enable_bullet_depletion_left_str,
+			disable_reload_bullet_depletion_left_str,
+			enable_reload_bullet_depletion_left_str
+		};
+	}
 
 	enum handType : BYTE
 	{
@@ -150,6 +163,7 @@ namespace bullet_depletion
 	public:
 		void start_hooks() override
 		{
+			initialize_notes();
 			cg_updateviewmodeldynamicbones_hook.create(REBASE(0x14126EEB0), &cg_updateviewmodeldynamicbones_internal); //updated
 			CG_PlayRumbleOnEntity_hook.create(REBASE(0x1409E6C90), &CG_PlayRumbleOnEntity_internal); // unchanged
 		}

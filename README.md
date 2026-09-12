@@ -13,9 +13,14 @@
 - HTTP requests from lua
 - Discord Rich Presence
 - Bullet depletion
+- Automatic fix for the Paralyzer dial's null heat-percent crash on custom maps
 - More to come!
 
 ## How to use
+
+The same DLL automatically selects offsets for the March 2023, February 2026,
+and September 2026 PC builds.
+
 - Clone this repo or download the latest release.
 - Copy the lua files to the mod/map you want to use this in.
 - Copy the dll to the zone folder

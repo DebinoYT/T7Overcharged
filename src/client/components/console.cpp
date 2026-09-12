@@ -58,7 +58,7 @@ namespace console
 		/*if (!hks::hksi_lua_isstring(s, 1))
 		{
 			auto type = hks::hksi_lua_type(s, 1);
-			lua::luaL_error(s, "Print requires argment 1 ( const char * info ) to be of type const char *. Received type %s.", hks::TypeName[type + 1]);
+			lua::luaL_error(s, "Print requires argment 1 ( const char * info ) to be of type const char *. Received type %s.", hks::TypeName()[type + 1]);
 		}*/
 		auto text = lua::lua_tostring(s, 1);
 		print(text);
@@ -202,7 +202,7 @@ namespace console
 				{"ShowExternalConsole", show_external_console},
 				{nullptr, nullptr},
 			};
-			hks::hksI_openlib(game::UI_luaVM, "Console", ConsoleLibrary, 0, 1);
+			hks::hksI_openlib(game::UI_luaVM(), "Console", ConsoleLibrary, 0, 1);
 		}
 
 		void start_hooks() override

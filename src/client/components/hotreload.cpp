@@ -95,11 +95,11 @@ namespace hotreload
 				game::minlog.WriteLine(utils::string::va("Reloaded file: %s", fileName));
 		}
 
-		UI_DebugReload("UIRootFull", game::UI_luaVM);
+		UI_DebugReload("UIRootFull", game::UI_luaVM());
 		if (refreshGameplayRoots)
 		{
-			UI_DebugReload("UIRoot0", game::UI_luaVM);
-			UI_DebugReload("UIRoot1", game::UI_luaVM);
+			UI_DebugReload("UIRoot0", game::UI_luaVM());
+			UI_DebugReload("UIRoot1", game::UI_luaVM());
 		}
 
 		return 1;
@@ -147,7 +147,7 @@ namespace hotreload
 				{"CheckForNewFiles", check_for_new_files},
 				{nullptr, nullptr},
 			};
-			hks::hksI_openlib(game::UI_luaVM, "HotReload", HotReloadLibrary, 0, 1);
+			hks::hksI_openlib(game::UI_luaVM(), "HotReload", HotReloadLibrary, 0, 1);
 		}
 
 		void start_hooks() override
@@ -155,8 +155,8 @@ namespace hotreload
 			refreshGameplayRoots = true;
 			if (hot_reload_running)
 			{
-				UI_DebugReload("UIRoot0", game::UI_luaVM);
-				UI_DebugReload("UIRoot1", game::UI_luaVM);
+				UI_DebugReload("UIRoot0", game::UI_luaVM());
+				UI_DebugReload("UIRoot1", game::UI_luaVM());
 			}
 		}
 

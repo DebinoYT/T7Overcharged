@@ -47,7 +47,7 @@ void component_loader::initialize_hook_cycle()
 			{"Create", hook_cycle_create},
 			{nullptr, nullptr},
 		};
-		hks::hksI_openlib(game::UI_luaVM, "HookCycle", HookCycleLibrary, 0, 1);
+		hks::hksI_openlib(game::UI_luaVM(), "HookCycle", HookCycleLibrary, 0, 1);
 
 		// Create a event handler for when the hud is created, at this point it is safe to start hooks
 		std::string hookCycleEvent = 

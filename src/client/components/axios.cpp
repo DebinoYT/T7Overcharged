@@ -45,7 +45,7 @@ namespace axios
 				{"Post", post},
 				{nullptr, nullptr},
 			};
-			hks::hksI_openlib(game::UI_luaVM, "Axios", AxiosLibrary, 0, 1);
+			hks::hksI_openlib(game::UI_luaVM(), "Axios", AxiosLibrary, 0, 1);
 		}
 	};
 }

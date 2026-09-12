@@ -5,7 +5,6 @@
 #define LUA_REGISTRYINDEX	(-10000)
 #define LUA_ENVIRONINDEX	(-10001)
 #define LUA_GLOBALSINDEX	(-10002)
-#define OFFSET(address) (uintptr_t)((address - 0x140000000) + (uintptr_t)GetModuleHandle(NULL))
 namespace lua
 {
 	WEAK game::symbol<void(lua_State* s, int narg, const char* extramsg)> luaL_argerror{ OFFSET(0x141D40A80) }; //updated

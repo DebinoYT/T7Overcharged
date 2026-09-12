@@ -46,7 +46,7 @@ namespace lua
 				{"Remove", remove},
 				{nullptr, nullptr},
 			};
-			hks::hksI_openlib(game::UI_luaVM, "UIErrorHash", UIErrorHashLibrary, 0, 1);
+			hks::hksI_openlib(game::UI_luaVM(), "UIErrorHash", UIErrorHashLibrary, 0, 1);
 		}
 
 		void start_hooks() override

@@ -4,8 +4,6 @@
 
 namespace game
 {
-#define REBASE(address) (uintptr_t)((address - 0x140000000) + game::base)
-#define OFFSET(address) (uintptr_t)((address - 0x140000000) + (uintptr_t)GetModuleHandle(NULL))
 
 	/* BG */
 	WEAK symbol<int(void* ps, void* weapon/*const playerState_t* ps, const Weapon weapon*/)> BG_GetAmmoInClip{ OFFSET(0x14266DCA0) }; 
@@ -50,8 +48,11 @@ namespace game
 	WEAK symbol<int(XAssetType type)> DB_GetXAssetTypeSize{ OFFSET(0x1413E9E00) }; //updated 0x13E9DE0
 	// Variables
 	static XAssetPool* DB_XAssetPool = reinterpret_cast<XAssetPool*>(OFFSET(0x1493883F0)); //updated
-	static bool s_luaInFrontend = ((bool)OFFSET(0x143394BE8)); //updated
-	static lua::lua_State* UI_luaVM = ((lua::lua_State*)((*(INT64*)OFFSET(0x159BF7E08)))); //updated
+	WEAK symbol<bool> s_luaInFrontend{ OFFSET(0x143394BE8) };
+	inline lua::lua_State* UI_luaVM()
+	{
+		return *reinterpret_cast<lua::lua_State**>(OFFSET(0x159BF7E08));
+	}
 
 	/* DObj */
 	WEAK symbol<int(void*/*const DObj*/ obj, ScrString_t name, BoneIndex* index, int modelNum)> DObjGetBoneIndex{ OFFSET(0x1422C4900) }; //updated

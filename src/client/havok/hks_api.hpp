@@ -1,7 +1,6 @@
 #include "game/game.hpp"
 #define WEAK __declspec(selectany)
 
-#define OFFSET(address) (uintptr_t)((address - 0x140000000) + (uintptr_t)GetModuleHandle(NULL))
 
 namespace hks
 {
@@ -18,7 +17,10 @@ namespace hks
 	WEAK game::symbol<void (const char* error, lua::lua_State* luaVM)> Lua_CoD_LuaStateManager_Error{ OFFSET(0x141F05CE0) }; //updated
 
 
-	static const char** TypeName = ((const char**)((*(INT64*)(((uintptr_t)GetModuleHandle(NULL) + 0x32FC4C8))))); //updated
+	inline const char** TypeName()
+	{
+		return *reinterpret_cast<const char***>(OFFSET(0x1432FC4C8));
+	}
 
 	int hks_obj_type(const lua::HksObject* obj);
 	int hksi_lua_type(lua::lua_State* s, int index);
