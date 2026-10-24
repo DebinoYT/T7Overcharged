@@ -149,3 +149,5 @@ user*.bat
 
 # Premake binary
 #premake5.exe
+_dutycore_ref/Duty-Core/
+_boiii_ref/boiii-free/
