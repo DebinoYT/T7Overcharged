@@ -11,12 +11,15 @@
 #include <cstdint>
 #include <cstdlib>
 #include <cstring>
+#include <cwctype>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <limits>
+#include <memory>
 #include <mutex>
 #include <optional>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <vector>

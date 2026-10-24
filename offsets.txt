@@ -1,3 +1,4 @@
+# Copy this file into the active BO3 mod's zone directory; the DLL reads it there.
 # Relative virtual addresses (RVAs) are based on the BO3 executable image base.
 # DB_XAssetPool values are carried over from the existing T7Overcharged build table.
 DB_XAssetPool.march_2023=0x94073F0

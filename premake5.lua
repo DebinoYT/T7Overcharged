@@ -74,6 +74,8 @@ files {
 	"./src/client/std_include.hpp",
 	"./src/client/components/asset_limits.cpp",
 	"./src/client/components/asset_limits.hpp",
+	"./src/client/game/active_mod_path.cpp",
+	"./src/client/game/active_mod_path.hpp",
 	"./src/client/game/game.cpp",
 	"./src/client/game/game.hpp",
 	"./src/client/game/offsets.cpp",

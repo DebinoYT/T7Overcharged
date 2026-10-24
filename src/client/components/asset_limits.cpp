@@ -34,6 +34,7 @@ namespace asset_limits
 		bool minhook_initialized{};
 		std::array<std::atomic<bool>, pool_count> beyond_stock_reported{};
 		std::mutex pool_allocation_mutex;
+		std::filesystem::path offsets_file_path;
 
 		std::string trim(std::string value)
 		{
@@ -112,7 +113,7 @@ namespace asset_limits
 			};
 			if (priority(level) < priority(log_level))
 				return;
-			game::minlog.WriteLine(message.c_str());
+			game::minlog.WriteLine((std::string("[T7Overclocked] ") + message).c_str());
 		}
 
 		std::string build_key(const char* address_name)
@@ -122,7 +123,7 @@ namespace asset_limits
 
 		bool read_rva(const std::string& key, std::uintptr_t& rva, const bool required = true)
 		{
-			std::ifstream input("offsets.txt");
+			std::ifstream input(offsets_file_path);
 			if (!input)
 			{
 				if (required)
@@ -216,6 +217,7 @@ namespace asset_limits
 				return false;
 			}
 
+			log(std::string("Loaded DB_XAssetPool offset from ") + offsets_file_path.string() + ".");
 			return true;
 		}
 
@@ -422,14 +424,16 @@ namespace asset_limits
 			apply_requests();
 		}
 
-		bool load_config()
+		bool load_config(const std::filesystem::path& config_file)
 		{
-			std::ifstream input("T7Overclocked.ini");
+			std::ifstream input(config_file);
 			if (!input)
 			{
-				log("T7Overclocked.ini not found; asset pools will remain unchanged.", "error");
+				log(std::string("Configuration file could not be opened: ") + config_file.string() +
+					". Asset pools will remain unchanged.", "error");
 				return false;
 			}
+			log(std::string("Reading configuration from ") + config_file.string() + ".");
 
 			std::string section;
 			std::string line;
@@ -439,15 +443,23 @@ namespace asset_limits
 				if (line.empty() || line.front() == '#' || line.front() == ';')
 					continue;
 
-				if (line.front() == '[' && line.back() == ']')
+				if (line.front() == '[' || line.back() == ']')
 				{
+					if (line.size() < 3 || line.front() != '[' || line.back() != ']')
+					{
+						log(std::string("Malformed configuration section: ") + line + ".", "warning");
+						continue;
+					}
 					section = lower(trim(line.substr(1, line.size() - 2)));
 					continue;
 				}
 
 				const auto separator = line.find('=');
 				if (separator == std::string::npos)
+				{
+					log(std::string("Malformed configuration entry: ") + line + ".", "warning");
 					continue;
+				}
 
 				const auto key = lower(trim(line.substr(0, separator)));
 				const auto value = trim(line.substr(separator + 1));
@@ -470,6 +482,10 @@ namespace asset_limits
 							log("Invalid LogLevel; using info.", "warning");
 							log_level = "info";
 						}
+					}
+					else
+					{
+						log(std::string("Unsupported [T7Overclocked] key: ") + key + ".", "warning");
 					}
 				}
 				else if (section == "assetpools")
@@ -506,19 +522,25 @@ namespace asset_limits
 					log(std::string("Configuration: ") + key + " requested capacity=" +
 						std::to_string(request->requested_size) + ".");
 				}
+				else
+				{
+					log(std::string("Unsupported configuration section: ") + section + ".", "warning");
+				}
 			}
 
 			return true;
 		}
 	}
 
-	bool initialize()
+	bool initialize(const std::filesystem::path& config_file,
+		const std::filesystem::path& offsets_file)
 	{
 		if (initialized_once)
 			return true;
 		initialized_once = true;
 
-		if (!load_config())
+		offsets_file_path = offsets_file;
+		if (!load_config(config_file))
 			return false;
 		if (!enabled)
 		{

@@ -23,7 +23,38 @@ capacities for them are unsupported and will be logged.
 
 ## Configuration
 
-Place `T7Overclocked.ini` and `offsets.txt` in the BO3 working directory.
+The DLL derives its containing mod directory from its own loaded module path.
+It requires the DLL to be installed in `mods/<mod>/zone`; this identifies the
+mod containing the DLL and does not independently verify that BO3 has activated
+that mod. It loads both files from that `zone` directory and writes the log to
+the containing mod's `logs` directory:
+
+```text
+Black Ops III/
+└── mods/
+    └── <active-mod>/
+        ├── logs/
+        │   └── T7Overclocked.log
+        └── zone/
+            ├── T7Overclocked.ini
+            └── offsets.txt
+```
+
+At startup the boot diagnostic and normal log record all resolved paths. There
+is no fallback to the current working directory or an unrelated directory.
+Paths are derived from the DLL's loaded module handle using
+`GetModuleFileNameW`; no BO3 active-mod structure offsets are used for path
+resolution. If the DLL is not under a validated `mods/<mod>/zone` directory,
+configuration-dependent behavior is disabled safely.
+
+At the earliest init entry, the DLL also creates a temporary diagnostic at
+`%TEMP%\T7Overclocked_boot_<pid>_<tick>.log`. It records entry, process ID,
+DLL-path resolution, failures, and progress opening the mod log and
+initializing configuration. This diagnostic is retained to assist testing.
+Initialization remains on the loader's calling thread; if DLL-path resolution
+fails, the diagnostic records the error and configuration-dependent code is
+not initialized. The normal file logger and debugger output do not require a
+BO3 console to be attached.
 
 ```ini
 [T7Overclocked]

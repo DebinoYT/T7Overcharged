@@ -151,3 +151,5 @@ user*.bat
 #premake5.exe
 _dutycore_ref/Duty-Core/
 _boiii_ref/boiii-free/
+/_test
+/_weapon_tech_ref
