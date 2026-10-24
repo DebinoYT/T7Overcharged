@@ -1,41 +1,32 @@
 #include <std_include.hpp>
 
+#include "components/asset_limits.hpp"
 #include "game/game.hpp"
-#include "game/dvars.hpp"
-#include "havok/hks_api.hpp"
-#include "loader/component_loader.hpp"
+
+namespace lua
+{
+	struct lua_State;
+}
 
 extern "C"
 {
-	int __declspec(dllexport) init(lua::lua_State* L)
+	int __declspec(dllexport) init(lua::lua_State*)
 	{
-		if (game::offsets::active_build() == game::offsets::build::unknown)
+		game::minlog.Open("T7Overclocked.log", "logs");
+
+		const auto build = game::offsets::active_build();
+		if (build == game::offsets::build::unknown)
 		{
-			const char* message = "Unsupported Black Ops 3 executable. T7Overcharged supports March 2023, February 2026, and September 2026. No game hooks were installed.";
+			const char* message =
+				"Unsupported Black Ops 3 executable. No T7Overclocked asset-pool hooks were installed.";
 			game::minlog.WriteLine(message);
-			MessageBoxA(nullptr, message, "T7Overcharged", MB_OK | MB_ICONERROR);
+			MessageBoxA(nullptr, message, "T7Overclocked", MB_OK | MB_ICONERROR);
 			return 0;
 		}
+
 		game::minlog.WriteLine(game::offsets::build_name());
-		dvars::initialize();
-		game::minlog.WriteLine("T7Overchared initiating");
-
-		const lua::luaL_Reg T7OverchargedLibrary[] =
-		{
-			{nullptr, nullptr},
-		};
-		hks::hksI_openlib(L, "T7Overcharged", T7OverchargedLibrary, 0, 1);
-
-		if (!component_loader::post_start())
-		{
-			game::Com_Error_("", 0, 0x200u, "Error while loading T7Overcharged components");
-			game::minlog.WriteLine("Error while loading T7Overcharged components");
-			return 0;
-		}
-
-		game::minlog.WriteLine("T7Overchared initiated");
-
-		game::LoadDvarHashMap();
+		if (!asset_limits::initialize())
+			game::minlog.WriteLine("Asset-pool initialization did not complete; see the preceding log messages.");
 		return 1;
 	}
 }

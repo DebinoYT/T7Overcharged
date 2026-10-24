@@ -1,79 +1,73 @@
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![Releases](https://img.shields.io/github/downloads/JariKCoding/T7Overcharged/total.svg)](https://github.com/JariKCoding/T7Overcharged/)
+# T7Overclocked
 
-# T7Overcharged
+T7Overclocked is a Black Ops III PC DLL focused on extending the `attachment`
+and `attachmentunique` asset pools. It retains the existing exported `init`
+entry point and BO3 build detection, and removes T7Overcharged's unrelated
+Lua, UI, console, network, Discord, gameplay-patch, and hot-reload features.
 
-**T7Overcharged** gives Call of Duty: Black Ops 3 modders the ability to take their mods to the next level by providing an API between Lua and C++ and providing already worked out components.
+## Supported pools
 
-## Features
-- Hot reloading of lua scripts
-- UI Errors now give a stack trace and don't cause a freeze
-- Extending the asset limits
-- External console and printing to the console from lua
-- HTTP requests from lua
-- Discord Rich Presence
-- Bullet depletion
-- Automatic fix for the Paralyzer dial's null heat-percent crash on custom maps
-- More to come!
+| Pool | Stock capacity |
+| --- | ---: |
+| `attachment` | 128 |
+| `attachmentunique` | 1024 |
 
-## How to use
+The `attachmentunique` capacity above is the supplied target stock value. The
+BOIII reference table reports `0x864` for its target build, so the runtime
+capacity logged for the actual executable is authoritative.
 
-The same DLL automatically selects offsets for the March 2023, February 2026,
-and September 2026 PC builds.
+Only these two pools are currently supported. Other pool names are logged and
+ignored; their engine-side limits have not been investigated. The example
+`weapon=0` and `xmodel=0` entries are accepted as no-op requests; positive
+capacities for them are unsupported and will be logged.
 
-- Clone this repo or download the latest release.
-- Copy the lua files to the mod/map you want to use this in.
-- Copy the dll to the zone folder
-- Add the following lines to your zone file:
+## Configuration
+
+Place `T7Overclocked.ini` and `offsets.txt` in the BO3 working directory.
+
+```ini
+[T7Overclocked]
+Enabled=true
+LogLevel=info
+
+[AssetPools]
+attachment=256
+attachmentunique=2048
 ```
-rawfile,ui/util/T7Overcharged.lua
-rawfile,ui/util/T7OverchargedUtil.lua
-```
-- Add the following lines in your main lua file:
-```
-require("ui.util.T7Overcharged")
-```
-- Under that add the following code but change variables to your map/mod's information
 
-for a mod:
-```
-InitializeT7Overcharged({
-	modname = "t7overcharged",
-	filespath = [[.\mods\t7overcharged\]],
-	workshopid = "45131545",
-	discordAppId = nil,--"{{DISCORD_APP_ID}}" -- Not required, create your application at https://discord.com/developers/applications/
-	showExternalConsole = true
-})
-```
-for a map:
-```
-InitializeT7Overcharged({
-	mapname = "zm_t7overcharged",
-	filespath = [[.\usermaps\zm_t7overcharged\]],
-	workshopid = "45131545",
-	discordAppId = nil,--"{{DISCORD_APP_ID}}" -- Not required, create your application at https://discord.com/developers/applications/
-	showExternalConsole = true
-})
-```
-The [dvar hash list](usage/dvar_hash_list.txt) as of now isn't shipped with the DLL, it has to be manually placed inside of the root folder of Black Ops 3.
+A pool value of `0` leaves it unchanged. Positive values are requested
+capacities. A request below the runtime capacity never shrinks a pool.
+Invalid values and unsupported pool names are logged.
 
+The shipped `offsets.txt` contains the `DB_XAssetPool` RVAs already used by
+the T7Overcharged build table. The `DB_AssetPoolInit` RVA is intentionally
+left unset because this repository and the supplied reference sources do not
+verify that function address for the three supported executables. When pools
+are not yet initialized, supply the verified RVA for the exact build before
+enabling expansion. Addresses are relative virtual addresses from the BO3
+image base, written as hexadecimal values.
 
-## Download
+When pools are already initialized, the extender can resize them only if no
+entries have been allocated and a verified `DB_AssetPoolAlloc` hook is
+available to serialize allocator activity with the metadata update. It refuses
+live reallocation of populated pools because other engine objects may hold
+pointers into the current pool memory.
+For safe early expansion, the `DB_AssetPoolInit` hook must be configured so
+the replacement allocation is installed immediately after engine
+initialization and before assets are allocated.
 
-The latest version can be found on the [Releases Page](https://github.com/Scroptss/T7Overcharged/releases).
+An optional `DB_AssetPoolAlloc.<build>` RVA in `offsets.txt` enables logging
+when the engine allocator returns a non-null slot beyond the stock capacity.
+It is required for safe resizing when pools are already initialized. That
+telemetry confirms the allocator used an expanded slot; successful asset
+registration and lookup still require an in-game test with actual assets.
 
-## Compile from source
+The DLL writes its log to `logs/T7Overclocked.log`.
 
-- Clone the Git repo. Do NOT download it as ZIP, that won't work.
-- Update the submodules and run `premake5 vs2022` or simply use the delivered `generate.bat`.
-- Build via solution file in `build\T7Overcharged.sln`.
+## Build
 
-## Credits
+1. Update submodules and dependencies.
+2. Run `generate.bat` or `tools\premake5.exe vs2022`.
+3. Build `build\T7Overclocked.sln` in Visual Studio.
 
-- [XLabsProjects](https://github.com/XLabsProject): Great project setup
-- [Approved](https://github.com/approved): Asset limit extension
-- [Serious](https://github.com/shiversoftdev): UI Error hash dvar
-
-## License 
-
-T7Overcharged is licensed under the GNUv3 license and its source code is free to use and modify. T7Overcharged comes with NO warranty, any damages caused are solely the responsibility of the user. See the LICENSE file for more information.
+The generated DLL is named `T7Overclocked.dll`.
