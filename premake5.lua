@@ -74,6 +74,7 @@ files {
 	"./src/client/std_include.hpp",
 	"./src/client/components/asset_limits.cpp",
 	"./src/client/components/asset_limits.hpp",
+	"./src/client/components/pool_extension.hpp",
 	"./src/client/game/active_mod_path.cpp",
 	"./src/client/game/active_mod_path.hpp",
 	"./src/client/game/game.cpp",
@@ -91,6 +92,19 @@ minhook.import()
 if _OPTIONS["copy-to"] then
 	postbuildcommands {"copy /y \"$(TargetPath)\" \"" .. _OPTIONS["copy-to"] .. "\""}
 end
+
+project "T7Overclocked.Tests"
+kind "ConsoleApp"
+language "C++"
+targetname "T7Overclocked.Tests"
+
+files {
+	"./tests/pool_extension_tests.cpp",
+	"./src/client/components/pool_extension.hpp",
+	"./src/client/game/structs.hpp"
+}
+
+includedirs {"./src/client"}
 
 group "Dependencies"
 minhook.project()

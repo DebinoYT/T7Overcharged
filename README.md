@@ -60,6 +60,7 @@ BO3 console to be attached.
 [T7Overclocked]
 Enabled=true
 LogLevel=info
+DiagnosticOnly=false
 
 [AssetPools]
 attachment=256
@@ -70,35 +71,55 @@ A pool value of `0` leaves it unchanged. Positive values are requested
 capacities. A request below the runtime capacity never shrinks a pool.
 Invalid values and unsupported pool names are logged.
 
+`MonitorIntervalMs` (default `2000`, `0` disables) sets how often a read-only
+monitor checks the extended pools and logs when the engine allocates entries
+beyond the original capacity.
+
+Set `DiagnosticOnly=true` to validate and log the pool table and the
+`attachment`/`attachmentunique` descriptors without installing hooks or
+changing pool memory.
+
+### How pools are extended
+
+BO3 allocates pool entries by popping `XAssetPool::freeHead` and releases them
+by pushing back onto it. Live assets are referenced by pointer, so the
+existing storage is never moved or copied. For each request above the runtime
+capacity, the DLL allocates a separate block of `requested - capacity` entries,
+chains them, and links the chain onto the tail of the existing free list with
+an atomic compare-exchange. It then raises `itemCount` to the requested
+capacity. Stock entries are still handed out first; the new entries are only
+used once the stock storage is exhausted, which is where the engine would
+otherwise fail. This is the same technique DutyCore uses from its Lua `init`,
+with free-list validation and an atomic tail link added. No game code is
+hooked or patched.
+
+Before extending, the DLL checks that the descriptor's `itemSize` matches the
+pool (`0x220` attachment, `0x840` attachmentunique), that it is not a
+singleton, and that every free-list link stays inside the pool's storage.
+The log records each pool's original, requested and final capacity and the
+outcome. It also records how many RIP-relative references in the running,
+decrypted executable resolve into the configured `DB_XAssetPool` table, and
+which ones address the two target descriptors directly. The candidate
+function RVAs cannot be checked on disk because that code is encrypted.
+
+Known limitation: extension entries lie outside the pool's original
+contiguous storage. Engine code that iterates the storage by index up to
+`itemCount`, or that derives an index from an entry's offset into it, would
+mishandle them. The direct-reference count in the log flags type-specific code
+of that kind, but only an in-game test with more than the stock number of
+assets confirms the result.
+
 The shipped `offsets.txt` contains the `DB_XAssetPool` RVAs already used by
-the T7Overcharged build table. The `DB_AssetPoolInit` RVA is intentionally
-left unset because this repository and the supplied reference sources do not
-verify that function address for the three supported executables. When pools
-are not yet initialized, supply the verified RVA for the exact build before
-enabling expansion. Addresses are relative virtual addresses from the BO3
-image base, written as hexadecimal values.
-
-When pools are already initialized, the extender can resize them only if no
-entries have been allocated and a verified `DB_AssetPoolAlloc` hook is
-available to serialize allocator activity with the metadata update. It refuses
-live reallocation of populated pools because other engine objects may hold
-pointers into the current pool memory.
-For safe early expansion, the `DB_AssetPoolInit` hook must be configured so
-the replacement allocation is installed immediately after engine
-initialization and before assets are allocated.
-
-An optional `DB_AssetPoolAlloc.<build>` RVA in `offsets.txt` enables logging
-when the engine allocator returns a non-null slot beyond the stock capacity.
-It is required for safe resizing when pools are already initialized. That
-telemetry confirms the allocator used an expanded slot; successful asset
-registration and lookup still require an in-game test with actual assets.
+the T7Overcharged build table. `DB_AssetPoolInit` is only needed when the DLL
+loads before the pools exist, which does not happen when it is loaded from Lua.
 
 The DLL writes its log to `logs/T7Overclocked.log`.
-
 ## Build
 
 1. Update submodules and dependencies.
 2. Run `generate.bat` or `tools\premake5.exe vs2022`.
 3. Build `build\T7Overclocked.sln` in Visual Studio.
+4. Run `build\bin\x64\<config>\T7Overclocked.Tests.exe` for the offline
+   free-list extension tests.
 
 The generated DLL is named `T7Overclocked.dll`.
